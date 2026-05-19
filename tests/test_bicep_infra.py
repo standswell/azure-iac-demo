@@ -4,9 +4,12 @@ from __future__ import annotations
 
 from typing import Any
 
+import pytest
+
 from tests.conftest import (
     BICEP_FILE,
     EXPECTED_RESOURCE_TYPES,
+    PARAMETERS_EXAMPLE_FILE,
     PARAMETERS_FILE,
     REQUIRED_PARAMETERS,
 )
@@ -16,7 +19,7 @@ from tests.conftest import (
 
 def test_infra_files_exist() -> None:
     assert BICEP_FILE.is_file()
-    assert PARAMETERS_FILE.is_file()
+    assert PARAMETERS_EXAMPLE_FILE.is_file()
 
 
 def test_bicep_declares_linux_vm_and_ssh_only(bicep_source: str) -> None:
@@ -44,26 +47,36 @@ def test_bicep_declares_outputs(bicep_source: str) -> None:
         assert f"output {name}" in bicep_source
 
 
-def test_parameters_file_is_valid_json(parameters_doc: dict[str, Any]) -> None:
-    assert parameters_doc.get("contentVersion")
-    params = parameters_doc.get("parameters")
+def test_parameters_example_is_valid_json(parameters_example_doc: dict[str, Any]) -> None:
+    assert parameters_example_doc.get("contentVersion")
+    params = parameters_example_doc.get("parameters")
     assert isinstance(params, dict)
 
 
-def test_parameters_include_required_keys(parameters_doc: dict[str, Any]) -> None:
-    keys = set(parameters_doc["parameters"])
+def test_parameters_example_includes_required_keys(parameters_example_doc: dict[str, Any]) -> None:
+    keys = set(parameters_example_doc["parameters"])
     missing = REQUIRED_PARAMETERS - keys
     assert not missing, f"Missing parameters: {sorted(missing)}"
 
 
-def test_parameters_ssh_key_is_set(parameters_doc: dict[str, Any]) -> None:
-    value = parameters_doc["parameters"]["sshPublicKey"]["value"]
-    assert value.startswith(("ssh-ed25519 ", "ssh-rsa "))
-    assert "REPLACE_WITH_YOUR_SSH_PUBLIC_KEY" not in value
+def test_parameters_example_uses_placeholders(parameters_example_doc: dict[str, Any]) -> None:
+    params = parameters_example_doc["parameters"]
+    assert "REPLACE_WITH_YOUR_SSH_PUBLIC_KEY" in params["sshPublicKey"]["value"]
+    assert params["sshSourceAddressPrefix"]["value"] == "YOUR_PUBLIC_IP/32"
 
 
-def test_parameters_admin_username_not_empty(parameters_doc: dict[str, Any]) -> None:
-    assert parameters_doc["parameters"]["adminUsername"]["value"]
+def test_parameters_example_admin_username_not_empty(parameters_example_doc: dict[str, Any]) -> None:
+    assert parameters_example_doc["parameters"]["adminUsername"]["value"]
+
+
+def test_local_parameters_ready_for_deploy(local_parameters_doc: dict[str, Any] | None) -> None:
+    if local_parameters_doc is None:
+        pytest.skip("Copy infra/main.parameters.example.json to infra/main.parameters.json")
+    ssh_key = local_parameters_doc["parameters"]["sshPublicKey"]["value"]
+    assert ssh_key.startswith(("ssh-ed25519 ", "ssh-rsa "))
+    assert "REPLACE_WITH_YOUR_SSH_PUBLIC_KEY" not in ssh_key
+    ip = local_parameters_doc["parameters"]["sshSourceAddressPrefix"]["value"]
+    assert ip != "YOUR_PUBLIC_IP/32"
 
 
 # --- Compiled template checks (require Bicep CLI) ---

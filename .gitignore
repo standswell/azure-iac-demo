@@ -1,6 +1,7 @@
 # Bicep / ARM
 *.bicep.local
 *.parameters.local.json
+infra/main.parameters.json
 
 # Azure CLI
 .azure/

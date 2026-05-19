@@ -12,7 +12,7 @@
       "value": "azureuser"
     },
     "sshPublicKey": {
-      "value": "REDACTED_SSH_PUBLIC_KEY"
+      "value": "REPLACE_WITH_YOUR_SSH_PUBLIC_KEY"
     },
     "vmSize": {
       "value": "Standard_D4s_v5"
@@ -27,7 +27,7 @@
       "value": false
     },
     "sshSourceAddressPrefix": {
-      "value": "REDACTED_IP/32"
+      "value": "YOUR_PUBLIC_IP/32"
     }
   }
 }

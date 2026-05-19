@@ -14,6 +14,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[1]
 INFRA_DIR = REPO_ROOT / "infra"
 BICEP_FILE = INFRA_DIR / "main.bicep"
+PARAMETERS_EXAMPLE_FILE = INFRA_DIR / "main.parameters.example.json"
 PARAMETERS_FILE = INFRA_DIR / "main.parameters.json"
 
 EXPECTED_RESOURCE_TYPES = frozenset(
@@ -33,7 +34,10 @@ REQUIRED_PARAMETERS = frozenset(
         "adminUsername",
         "sshPublicKey",
         "vmSize",
+        "osDiskSizeGB",
+        "installOllama",
         "allowSshFromInternet",
+        "sshSourceAddressPrefix",
     }
 )
 
@@ -93,7 +97,14 @@ def bicep_source(repo_root: Path) -> str:
 
 
 @pytest.fixture(scope="session")
-def parameters_doc(repo_root: Path) -> dict[str, Any]:
+def parameters_example_doc() -> dict[str, Any]:
+    return json.loads(PARAMETERS_EXAMPLE_FILE.read_text(encoding="utf-8"))
+
+
+@pytest.fixture(scope="session")
+def local_parameters_doc() -> dict[str, Any] | None:
+    if not PARAMETERS_FILE.is_file():
+        return None
     return json.loads(PARAMETERS_FILE.read_text(encoding="utf-8"))
 
 
