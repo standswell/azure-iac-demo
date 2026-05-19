@@ -1,0 +1,15 @@
+[project]
+name = "azure-iac-demo"
+version = "0.1.0"
+description = "Standswell Azure IaC demo — Linux VM Bicep template and tests"
+readme = "README.md"
+requires-python = ">=3.11"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0,<9.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

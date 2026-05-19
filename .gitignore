@@ -1,0 +1,18 @@
+# Bicep / ARM
+*.bicep.local
+*.parameters.local.json
+
+# Azure CLI
+.azure/
+
+# Secrets — never commit real keys or passwords
+*.pem
+*.ppk
+secrets/
+
+# Python / uv / pytest
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+.python-version
