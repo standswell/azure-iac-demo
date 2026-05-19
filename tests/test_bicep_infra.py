@@ -56,9 +56,10 @@ def test_parameters_include_required_keys(parameters_doc: dict[str, Any]) -> Non
     assert not missing, f"Missing parameters: {sorted(missing)}"
 
 
-def test_parameters_ssh_key_is_placeholder(parameters_doc: dict[str, Any]) -> None:
+def test_parameters_ssh_key_is_set(parameters_doc: dict[str, Any]) -> None:
     value = parameters_doc["parameters"]["sshPublicKey"]["value"]
-    assert "REPLACE_WITH_YOUR_SSH_PUBLIC_KEY" in value
+    assert value.startswith(("ssh-ed25519 ", "ssh-rsa "))
+    assert "REPLACE_WITH_YOUR_SSH_PUBLIC_KEY" not in value
 
 
 def test_parameters_admin_username_not_empty(parameters_doc: dict[str, Any]) -> None:

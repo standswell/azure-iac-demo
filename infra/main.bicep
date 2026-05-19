@@ -14,11 +14,17 @@ param adminUsername string
 @description('SSH public key (e.g. contents of ~/.ssh/id_rsa.pub)')
 param sshPublicKey string
 
-@description('VM size')
-param vmSize string = 'Standard_B2s'
+@description('VM size — use D4s_v5 or larger for Ollama (16 GB RAM minimum for small models)')
+param vmSize string = 'Standard_D4s_v5'
+
+@description('OS disk size in GB (models need space)')
+param osDiskSizeGB int = 128
 
 @description('Ubuntu image SKU')
 param ubuntuSku string = '22_04-lts-gen2'
+
+@description('Install Ollama on first boot via cloud-init')
+param installOllama bool = true
 
 @description('Allow SSH (port 22) from the internet. Set false and restrict sourceIp in production.')
 param allowSshFromInternet bool = true
@@ -32,6 +38,12 @@ var nsgName = '${namePrefix}-nsg'
 var pipName = '${namePrefix}-pip'
 var nicName = '${namePrefix}-nic'
 var vmName = '${namePrefix}-vm'
+
+var ollamaCloudInit = '''#!/bin/bash
+set -euo pipefail
+curl -fsSL https://ollama.com/install.sh | sh
+systemctl enable ollama
+'''
 
 resource nsg 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
   name: nsgName
@@ -120,6 +132,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2024-11-01' = {
     osProfile: {
       computerName: vmName
       adminUsername: adminUsername
+      customData: installOllama ? base64(ollamaCloudInit) : null
       linuxConfiguration: {
         disablePasswordAuthentication: true
         ssh: {
@@ -141,6 +154,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2024-11-01' = {
       }
       osDisk: {
         createOption: 'FromImage'
+        diskSizeGB: osDiskSizeGB
         managedDisk: {
           storageAccountType: 'Premium_LRS'
         }

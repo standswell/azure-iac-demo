@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "location": {
-      "value": "australiaeast"
+      "value": "uksouth"
     },
     "namePrefix": {
       "value": "iacdemo"
@@ -12,13 +12,22 @@
       "value": "azureuser"
     },
     "sshPublicKey": {
-      "value": "REPLACE_WITH_YOUR_SSH_PUBLIC_KEY"
+      "value": "REDACTED_SSH_PUBLIC_KEY"
     },
     "vmSize": {
-      "value": "Standard_B2s"
+      "value": "Standard_D4s_v5"
+    },
+    "osDiskSizeGB": {
+      "value": 128
+    },
+    "installOllama": {
+      "value": true
     },
     "allowSshFromInternet": {
-      "value": true
+      "value": false
+    },
+    "sshSourceAddressPrefix": {
+      "value": "REDACTED_IP/32"
     }
   }
 }
